@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Authors>Paul Brätz</Authors>
+		<Description>The base RhoMicro Domain model.</Description>
+		<Copyright>2022</Copyright>
+		<PackageTags>Rhomicro</PackageTags>
+		<Version>1.0.0</Version>
+		<PackageId>RhoMicro.Domain</PackageId>
+		<AssemblyName>RhoMicro.Domain</AssemblyName>
+		<RootNamespace>RhoMicro.Domain</RootNamespace>
+		<Company>RhoMicro</Company>
+		<PackageProjectUrl>https://github.com/PaulBraetz/Domain/</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="RhoMicro.Fort" Version="1.3.0" />
+		<PackageReference Include="RhoMicro.ObjectSync" Version="5.0.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+</Project>
