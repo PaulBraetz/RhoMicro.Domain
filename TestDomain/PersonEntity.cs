@@ -1,50 +1,41 @@
-﻿using RhoMicro.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Fort;
+﻿using Fort;
 using RhoMicro.ObjectSync.Attributes;
+using RhoMicro.Domain.Abstractions;
+using static TestDomain.PersonEntity;
+using RhoMicro.Domain.ObjectSync.Synchronization;
+using RhoMicro.Domain;
 
 namespace TestDomain
 {
-	[SynchronizationTarget(
-		BaseContextTypeName = nameof(EntityBase<PersonDto>.EntityBaseSynchronizationContext),
-		ContextTypeIsSealed = true,
-		ContextTypeAccessibility = Accessibility.Protected,
-		ContextPropertyAccessibility = Accessibility.Protected,
-		ContextPropertyModifier = Modifier.Override)]
-	internal sealed partial class PersonEntity : EntityBase<PersonDto>
-	{
-		public PersonEntity(PersonDto dto) : base(dto)
-		{
-			Name = dto.Name;
-		}
-		public PersonEntity(String name) : base()
-		{
-			name.ThrowIfDefault(nameof(name));
+    [SynchronizationTarget(
+        BaseContextTypeName = nameof(NamedEntityBaseSynchronizationContext),
+        ContextTypeIsSealed = true,
+        ContextTypeAccessibility = Accessibility.Protected,
+        ContextPropertyAccessibility = Accessibility.Protected,
+        ContextPropertyModifier = Modifier.Override)]
+    internal sealed partial class PersonEntity : NamedEntityBase
+    {
+        private PersonEntity(PersonDto dto, ISynchronizationAuthority synchronizationAuthority) : base(dto, synchronizationAuthority)
+        {
+        }
 
-			Name = name;
-		}
+        public static PersonEntity Create(PersonDto dto, IDomain domain, ISynchronizationAuthority synchronizationAuthority)
+        {
+            dto.ThrowIfNull(nameof(dto));
+            domain.ThrowIfNull(nameof(domain));
+            synchronizationAuthority.ThrowIfNull(nameof(synchronizationAuthority));
 
-		[Synchronized(Observable = true)]
-		private String _name;
+            var result = new PersonEntity(dto, synchronizationAuthority)
+            {
+                BirthDayInternal = dto.BirthDay
+            };
 
-		partial void OnPropertyChanged(String propertyName)
-		{
-			base.OnPropertyChanged(propertyName);
-		}
+            return result;
+        }
 
-		public override PersonDto ToDto()
-		{
-			return new PersonDto()
-			{
-				FirstUpdate = FirstUpdate,
-				LastUpdate = LastUpdate,
-				Id = Id,
-				Name = Name
-			};
-		}
-	}
+        public DateTimeOffset BirthDay => BirthDayInternal;
+        [Synchronized(Observable = true, PropertyAccessibility = Accessibility.Private)]
+        private DateTimeOffset _birthDayInternal;
+    }
+
 }

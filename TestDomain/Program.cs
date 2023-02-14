@@ -1,24 +1,36 @@
-﻿namespace TestDomain
+﻿using Microsoft.Extensions.Logging;
+
+using RhoMicro.Domain;
+
+namespace TestDomain
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main(String[] args)
         {
-            var person1 = new PersonEntity("Jake");
-            person1.PropertyChanged += (s, e) => Console.WriteLine($"person1.{e.PropertyName} has changed to {person1.Name}");
+            var domain = new Domain();
 
-            var dto = person1.ToDto();
-            var person2 = dto.ToEntity();
-            person2.PropertyChanged += (s, e) => Console.WriteLine($"person2.{e.PropertyName} has changed to {person2.Name}");
+            var firstOwner = new PersonDto(DateTimeOffset.Parse("20.05.1979"))
+            {
+                Name = "Mary"
+            }.Capture<PersonEntity>(domain);
+            var secondOwner = new PersonDto(DateTimeOffset.Parse("15.11.1956"))
+            {
+                Name = "Jake"
+            }.Capture<PersonEntity>(domain);
 
-            Console.WriteLine("Expecting Jake x2");
-            Console.WriteLine(person1.Name);
-            Console.WriteLine(person2.Name);
+            var property = new PropertyDto()
+            {
+                Name = "Car",
+                Owner = firstOwner.Release<PersonDto>(domain)
+            }.Capture<PropertyEntity>(domain);
 
-            person1.Name = "Todd";
-            Console.WriteLine("Expecting Todd x2");
-            Console.WriteLine(person1.Name);
-            Console.WriteLine(person2.Name);
+            var propertyClone = property.Release<PropertyDto>(domain).Capture<PropertyEntity>(domain);
+
+            property.Owner = secondOwner;
+
+            Console.WriteLine(property.Owner.Name);
+            Console.WriteLine(propertyClone.Owner.Name);
         }
     }
 }
